@@ -2,6 +2,12 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+Exercise: react app that will allow user to play a game online with multiple players, 
+The room that everyone plays in must be a qrcode image as well as a link that can be sent via whatsapp to other players to get into the same room.
+
+the game consists out of a button that allows for a deck of cards to be shuffled, the users then get a chance to draw 1 card from the pack,
+user with highest card number wins. Ace, jack , queen and king all count for 10 points then rest of the cards according to their face value.
+
 ## Available Scripts
 
 In the project directory, you can run:
