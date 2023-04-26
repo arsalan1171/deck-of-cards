@@ -16,7 +16,7 @@ You may also see any lint errors in the console.
 
 ### `sample`
 ![image](https://user-images.githubusercontent.com/25643936/234448840-48addc34-81ef-4300-92cb-cdf3546c09cb.png)
-![image](https://user-images.githubusercontent.com/25643936/234448449-8d35c9d4-da61-4ae0-8604-fbc080f9922a.png)
+![image](https://user-images.githubusercontent.com/25643936/234449365-5580779e-d742-4fb7-927f-276ee5dee768.png)
 
 
 ### `npm test`
