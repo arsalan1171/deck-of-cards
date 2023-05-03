@@ -8,8 +8,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import QRCode from 'qrcode.react';
 import db from '../../firebase';
-import './game_room.css';
 import Home from '../home/home';
+import './game_room.css';
 
 const GameRoom = () => {
   

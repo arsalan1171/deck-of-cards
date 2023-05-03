@@ -1,8 +1,8 @@
 import { collection, addDoc,getDocs,doc,setDoc} from 'firebase/firestore';
-import { nanoid } from 'nanoid';
+import { useNavigate  } from 'react-router-dom';
 import { Form, Button } from "react-bootstrap";
 import React, { useState } from 'react';
-import { useNavigate  } from 'react-router-dom';
+import { nanoid } from 'nanoid';
 import db from '../../firebase';
 import './home.css';
 
