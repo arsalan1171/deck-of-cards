@@ -1,22 +1,24 @@
-import { collection,query,onSnapshot} from 'firebase/firestore';
+import { collection,query,onSnapshot,doc,getDoc} from 'firebase/firestore';
 import cardsApi from '../../services/cards_service';
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import {  Button } from "react-bootstrap";
+import { useParams } from 'react-router-dom';
+import { Button } from "react-bootstrap";
 import Game from '../game-play/game_play';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import QRCode from 'qrcode.react';
 import db from '../../firebase';
 import './game_room.css';
+import Home from '../home/home';
 
 const GameRoom = () => {
   
-  const location = useLocation();
-  const roomId = location.state.roomId;
+  const { roomId } = useParams();
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
+
+  const [roomExists, setRoomExists] = useState(false);
 
   const [shuffledDeck, setShuffledDeck] = useState([]);
   
@@ -61,37 +63,61 @@ const GameRoom = () => {
       alert(error);
     }
   };
-  
+
+  useEffect(() => {
+    const roomIds = window.location.pathname.substring(1);
+
+    //check if the string obtained from url is a valid room existing in firebase
+    const fetchRoom = async () => {
+      try {
+        const roomRef = doc(db, `rooms/${roomIds}`);
+        const player = localStorage.getItem('player');
+        const roomSnapshot = await getDoc(roomRef);
+        if (roomSnapshot.exists() && player) {
+          setRoomExists(true);
+        } else {
+          setRoomExists(false);
+          alert(`Room ${roomIds} does not exist Or Player not found`);
+        }
+      } catch (error) {
+        console.error("Error fetching room: ", error);
+      }
+    };
+    fetchRoom();
+  }, [roomExists]);
+
   return (
     <div>
+      {roomExists ? (
         <>
-        <Row>
+          <Row>
             <Col>
-            <h1>Game Room: {roomId}</h1>
-           
-            <p className='ms-2'>Share this QR code with your friends to join the game room:</p>
-            <div style={{textAlign:'center'}}>
-            <a href={`https://localhost:3000/game/${roomId}`}>
-                 <QRCode value={`https://localhost:3000/game/${roomId}`} />
-            </a>
-            <br></br>
-            <Button className='mt-2' onClick={loadShuffledDeck}>Shuffle Deck</Button>
-            </div>
+              <h1>Game Room: {roomId}</h1>
+              <p className='ms-2'>Share this QR code with your friends to join the game room:</p>
+              <div style={{ textAlign: 'center' }}>
+                <a href={`https://localhost:3000/${roomId}`}>
+                  <QRCode value={`https://localhost:3000/${roomId}`} />
+                </a>
+                <br></br>
+                <Button className='mt-2' onClick={loadShuffledDeck}>Shuffle Deck</Button>
+              </div>
             </Col>
             <Col>
-            <h2>Players:</h2>
-          <ul>
-            {players.map((player) => (
-              <li key={player.id}>{player.name} {player.score}  </li>
-            ))}
-          </ul>
-          <div>
-            <Game players={players} roomId={roomId}></Game>
-          </div>
+              <h2>Players:</h2>
+              <ul>
+                {players.map((player) => (
+                  <li key={player.id}>{player.name} {player.score} </li>
+                ))}
+              </ul>
+              <div>
+                <Game players={players} roomId={roomId}></Game>
+              </div>
             </Col>
-        </Row>
+          </Row>
         </>
-  
+      ) : (
+        <Home />
+      )}
     </div>
   );
 };

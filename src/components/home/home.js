@@ -1,29 +1,33 @@
 import { collection, addDoc,getDocs,doc,setDoc} from 'firebase/firestore';
+import { nanoid } from 'nanoid';
 import { Form, Button } from "react-bootstrap";
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate  } from 'react-router-dom';
 import db from '../../firebase';
 import './home.css';
-const Home = () =>{
 
-    const [roomId, setRoomId] = useState('');
+const Home = () =>{
+    const [roomId, setRoomId] = useState(nanoid(7));
 
     const [playerName, setPlayerName] = useState('');
 
     const navigate = useNavigate();
-
     const createRoom = async () => {
         try {
            await addNewPlayerToRoom(roomId, playerName);
-           navigate(`/game_room/${roomId}`, { state: { roomId: roomId }});
+           navigate(`/${roomId}`);
         } catch (error) {
           console.error("Error creating room: ", error);
         }
       };
 
+    const roomIds = window.location.pathname.substring(1);
     const joinRoom = async (roomId, playerName) => {
         try {
-          //check if a player is already in the room, if it is then throw alert
+          //check if a player is already in the room, if it is then throw alert   
+
+          if(roomIds!=="") roomId=roomIds;
+          
           const querySnapshot = await getDocs(collection(db, `rooms/${roomId}/players`));
           const players = querySnapshot.docs.map(doc => doc.data());
           const playerExists = players.some(player => player.name === playerName);
@@ -32,18 +36,20 @@ const Home = () =>{
             console.log(`Player ${playerName} already exists in room ${roomId}.`);
             alert("player already exist, use different name")
           } else {
-              await addNewPlayerToRoom(roomId, playerName);
-              navigate(`/game_room/${roomId}`, { state: { roomId: roomId }});
+              await addNewPlayerToRoom(roomId, playerName); 
+              
             console.log(`Player ${playerName} joined room ${roomId}.`);
           }
         } catch (error) {
           console.error("Error joining room: ", error);
         }
       };
+
       
     const handleJoinRoomSubmit = (e) => {
         e.preventDefault();
-        joinRoom(roomId, playerName).then(setRoomId(roomId));
+        setRoomId(nanoid());
+        joinRoom(roomId, playerName);
       };
 
     //add new player to the room
@@ -54,11 +60,18 @@ const Home = () =>{
         score: 0
       });
       const playerId = playerRef.id;
+      await setDoc(doc(db, `rooms/${roomId}`), {
+        roomId:roomId,
+        roomUrl: 'https://localhost:3000/'+roomId
+      });
       await setDoc(doc(db, `rooms/${roomId}/players/${playerId}`), {
         playerId,
         name: playerName,
-        score: 0
+        score: 0,
+        
       });
+      localStorage.setItem('player',playerName);
+      navigate(`/${roomId}`);
       console.log(`Player ${playerName} added to room ${roomId}.`);
       return playerId;
     } catch (error) {
@@ -67,34 +80,26 @@ const Home = () =>{
   };
     return(
         <>
-        <h1>Create or Join a Game Room</h1>
-        <div className="form-content">
-          <Form onSubmit={(e) => handleJoinRoomSubmit(e)}>
-          <Form.Group className="mb-3" controlId="roomId">
-                  <Form.Control
-                      type="text"
-                      placeholder="Room ID"
-                      onChange={(e) => setRoomId(e.target.value)}
-                      required
-                  />
-          </Form.Group>
+            <h1>Create or Join a Game Room</h1>
+            <div className="form-content">
+                <Form onSubmit={(e) => handleJoinRoomSubmit(e)}>
 
-          <Form.Group className="mb-3" controlId="name">
-                  <Form.Control
-                      type="text"
-                      placeholder="Name"
-                      onChange={(e) => setPlayerName(e.target.value)}
-                      required
-                  />
-          </Form.Group>
-              <div>
-              <Button style={{ marginRight: '20px' }} type="submit">
-                   Join Room
-              </Button>
-          <Button onClick={createRoom}>Create a Room</Button>
-          </div>
-          </Form>
-          </div>
+                <Form.Group className="mb-3" controlId="name">
+                        <Form.Control
+                            type="text"
+                            placeholder="Name"
+                            onChange={(e) => setPlayerName(e.target.value)}
+                            required
+                        />
+                </Form.Group>
+                    <div>
+                    <Button style={{ marginRight: '20px' }} type="submit">
+                        Join Room
+                    </Button>
+                    <Button onClick={createRoom}>Create a Room</Button>
+                    </div>
+                </Form>
+            </div>
           </>
     )
 }
