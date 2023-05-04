@@ -21,8 +21,8 @@ The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
 ### `sample`
-![image](https://user-images.githubusercontent.com/25643936/234448840-48addc34-81ef-4300-92cb-cdf3546c09cb.png)
-![image](https://user-images.githubusercontent.com/25643936/234449365-5580779e-d742-4fb7-927f-276ee5dee768.png)
+![image](https://user-images.githubusercontent.com/25643936/236098101-a4fbea3c-eb3a-4d0d-822e-b791a947565e.png)
+![image](https://user-images.githubusercontent.com/25643936/236098414-0cd0057d-7f3f-4917-8e73-77146405657a.png)
 
 
 ### `npm test`
