@@ -1,18 +1,17 @@
-import { collection,query,onSnapshot,doc,getDoc} from 'firebase/firestore';
-import cardsApi from '../../services/cards_service';
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { collection, query, onSnapshot, doc, getDoc } from "firebase/firestore";
+import cardsApi from "../../services/cards_service";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
-import Game from '../game-play/game_play';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import QRCode from 'qrcode.react';
-import db from '../../firebase';
-import Home from '../home/home';
-import './game_room.css';
+import Game from "../game-play/game_play";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import QRCode from "qrcode.react";
+import db from "../../firebase";
+import Home from "../home/home";
+import "./game_room.css";
 
 const GameRoom = () => {
-  
   const { roomId } = useParams();
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
@@ -21,7 +20,7 @@ const GameRoom = () => {
   const [roomExists, setRoomExists] = useState(false);
 
   const [shuffledDeck, setShuffledDeck] = useState([]);
-  
+
   useEffect(() => {
     if (timeLeft === 0) {
       // Move to the next player
@@ -37,29 +36,29 @@ const GameRoom = () => {
       return () => clearTimeout(timer);
     }
   }, [currentPlayerIndex, players.length, timeLeft]);
-  
+
   useEffect(() => {
     if (!roomId) return;
     //get all the players that are within the room
-    const playersRef = collection(db, 'rooms', roomId, 'players');
+    const playersRef = collection(db, "rooms", roomId, "players");
     const queryRef = query(playersRef);
     const unsubscribe = onSnapshot(queryRef, (snapshot) => {
       const newPlayers = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       setPlayers(newPlayers);
     });
     return unsubscribe;
   }, [roomId]);
-  
+
   const loadShuffledDeck = async () => {
     try {
       const getShuffledDeck = await cardsApi.getShuffledDeck();
       console.log(getShuffledDeck);
       setShuffledDeck(getShuffledDeck);
     } catch (error) {
-      console.error('Error loading shuffled deck:', error);
+      console.error("Error loading shuffled deck:", error);
       alert(error);
     }
   };
@@ -71,7 +70,7 @@ const GameRoom = () => {
     const fetchRoom = async () => {
       try {
         const roomRef = doc(db, `rooms/${roomIds}`);
-        const player = localStorage.getItem('player');
+        const player = localStorage.getItem("player");
         const roomSnapshot = await getDoc(roomRef);
         if (roomSnapshot.exists() && player) {
           setRoomExists(true);
@@ -93,20 +92,26 @@ const GameRoom = () => {
           <Row>
             <Col>
               <h1>Game Room: {roomId}</h1>
-              <p className='ms-2'>Share this QR code with your friends to join the game room:</p>
-              <div style={{ textAlign: 'center' }}>
+              <p className="ms-2">
+                Share this QR code with your friends to join the game room:
+              </p>
+              <div style={{ textAlign: "center" }}>
                 <a href={`https://localhost:3000/${roomId}`}>
                   <QRCode value={`https://localhost:3000/${roomId}`} />
                 </a>
                 <br></br>
-                <Button className='mt-2' onClick={loadShuffledDeck}>Shuffle Deck</Button>
+                <Button className="mt-2" onClick={loadShuffledDeck}>
+                  Shuffle Deck
+                </Button>
               </div>
             </Col>
             <Col>
               <h2>Players:</h2>
               <ul>
                 {players.map((player) => (
-                  <li key={player.id}>{player.name} {player.score} </li>
+                  <li key={player.id}>
+                    {player.name} {player.score}{" "}
+                  </li>
                 ))}
               </ul>
               <div>
