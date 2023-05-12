@@ -7,8 +7,8 @@ import Game from "../game-play/game_play";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import QRCode from "qrcode.react";
+import PlayerGuard from "./player_guard";
 import db from "../../firebase";
-import Home from "../home/home";
 import "./game_room.css";
 
 const GameRoom = () => {
@@ -16,9 +16,6 @@ const GameRoom = () => {
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
-
-  const [roomExists, setRoomExists] = useState(false);
-
   const [shuffledDeck, setShuffledDeck] = useState([]);
 
   useEffect(() => {
@@ -62,33 +59,29 @@ const GameRoom = () => {
       alert(error);
     }
   };
+  const playerName = localStorage.getItem("player");
 
   useEffect(() => {
-    const roomIds = window.location.pathname.substring(1);
-
     //check if the string obtained from url is a valid room existing in firebase
     const fetchRoom = async () => {
       try {
+        const roomIds = window.location.pathname.substring(1);
         const roomRef = doc(db, `rooms/${roomIds}`);
-        const player = localStorage.getItem("player");
         const roomSnapshot = await getDoc(roomRef);
-        if (roomSnapshot.exists() && player) {
-          setRoomExists(true);
-        } else {
-          setRoomExists(false);
-          alert(`Room ${roomIds} does not exist Or Player not found`);
+        if (!roomSnapshot.exists() && playerName == null) {
+          console.log(`Room ${roomIds} does not exist Or Player not found`);
         }
       } catch (error) {
         console.error("Error fetching room: ", error);
       }
     };
     fetchRoom();
-  }, [roomExists]);
+  });
 
   return (
     <div>
-      {roomExists ? (
-        <>
+      <>
+        <PlayerGuard playerName={playerName}>
           <Row>
             <Col>
               <h1>Game Room: {roomId}</h1>
@@ -119,10 +112,8 @@ const GameRoom = () => {
               </div>
             </Col>
           </Row>
-        </>
-      ) : (
-        <Home />
-      )}
+        </PlayerGuard>
+      </>
     </div>
   );
 };

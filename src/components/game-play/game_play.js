@@ -29,7 +29,7 @@ const Game = ({ players, roomId }) => {
       }
     } else if (timeLeft === 0) {
       // Move to the next player
-      const nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
+      const nextPlayerIndex = currentPlayerIndex + 1;
       setCurrentPlayerIndex(nextPlayerIndex);
       // Reset the timer
       setTimeLeft(30);
