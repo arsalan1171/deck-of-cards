@@ -66,7 +66,7 @@ const GameRoom = () => {
     const fetchRoom = async () => {
       try {
         const roomIds = window.location.pathname.substring(1);
-        const room_id = roomIds != "" ? roomIds : roomId;
+        const room_id = roomIds !== "" ? roomIds : roomId;
         const roomRef = doc(db, `rooms/${room_id}`);
         const roomSnapshot = await getDoc(roomRef);
         if (!roomSnapshot.exists() && playerName == null) {

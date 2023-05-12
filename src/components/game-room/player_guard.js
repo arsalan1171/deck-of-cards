@@ -1,18 +1,11 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import Home from "../home/home";
 
 const PlayerGuard = (props) => {
   const { playerName, children } = props;
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkPlayer = async () => {
-      if (!playerName) {
-        navigate("/");
-      }
-    };
-    checkPlayer();
-  }, [playerName, navigate]);
+  if (!playerName) {
+    return <Home />;
+  }
 
   return children;
 };
