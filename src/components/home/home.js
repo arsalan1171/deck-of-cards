@@ -25,7 +25,7 @@ const Home = () => {
   };
 
   const roomIds = window.location.pathname.substring(1);
-  const joinRoom = async (roomId, playerName, isCreator) => {
+  const joinRoom = async (roomId, playerName) => {
     try {
       //check if a player is already in the room, if it is then throw alert
 
@@ -41,7 +41,7 @@ const Home = () => {
         console.log(`Player ${playerName} already exists in room ${roomId}.`);
         alert("player already exist, use different name");
       } else {
-        await addNewPlayerToRoom(roomId, playerName, isCreator);
+        await addNewPlayerToRoom(roomId, playerName);
 
         console.log(`Player ${playerName} joined room ${roomId}.`);
       }
