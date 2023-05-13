@@ -7,13 +7,16 @@ import db from "../../firebase";
 import "./home.css";
 
 const Home = () => {
-  const [roomId, setRoomId] = useState(nanoid(7));
+  let [roomId, setRoomId] = useState(nanoid(7));
 
   const [playerName, setPlayerName] = useState("");
+  const [roomCreator, setRoomCreator] = useState(false);
 
   const navigate = useNavigate();
+
   const createRoom = async () => {
     try {
+      setRoomCreator(true);
       await addNewPlayerToRoom(roomId, playerName);
       navigate(`/${roomId}`);
     } catch (error) {
@@ -22,7 +25,7 @@ const Home = () => {
   };
 
   const roomIds = window.location.pathname.substring(1);
-  const joinRoom = async (roomId, playerName) => {
+  const joinRoom = async (roomId, playerName, isCreator) => {
     try {
       //check if a player is already in the room, if it is then throw alert
 
@@ -38,7 +41,7 @@ const Home = () => {
         console.log(`Player ${playerName} already exists in room ${roomId}.`);
         alert("player already exist, use different name");
       } else {
-        await addNewPlayerToRoom(roomId, playerName);
+        await addNewPlayerToRoom(roomId, playerName, isCreator);
 
         console.log(`Player ${playerName} joined room ${roomId}.`);
       }
@@ -49,7 +52,6 @@ const Home = () => {
 
   const handleJoinRoomSubmit = (e) => {
     e.preventDefault();
-    setRoomId(nanoid());
     joinRoom(roomId, playerName);
   };
 
@@ -68,11 +70,14 @@ const Home = () => {
         roomId: roomId,
         roomUrl: "https://localhost:3000/" + roomId,
       });
+
       await setDoc(doc(db, `rooms/${roomId}/players/${playerId}`), {
         playerId,
         name: playerName,
         score: 0,
+        isRoomCreator: roomCreator,
       });
+
       localStorage.setItem("player", playerName);
       navigate(`/${roomId}`);
       console.log(`Player ${playerName} added to room ${roomId}.`);
@@ -81,6 +86,7 @@ const Home = () => {
       console.error("Error adding player to room: ", error);
     }
   };
+
   return (
     <>
       <h1>Create or Join a Game Room</h1>
@@ -98,7 +104,7 @@ const Home = () => {
             <Button style={{ marginRight: "20px" }} type="submit">
               Join Room
             </Button>
-            <Button onClick={createRoom}>Create a Room</Button>
+            <Button onClick={() => createRoom()}>Create a Room</Button>
           </div>
         </Form>
       </div>
