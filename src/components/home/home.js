@@ -14,10 +14,10 @@ const Home = () => {
 
   const navigate = useNavigate();
 
-  const createRoom = async () => {
+  const createRoom = () => {
     try {
       setRoomCreator(true);
-      await addNewPlayerToRoom(roomId, playerName);
+      addNewPlayerToRoom(roomId, playerName);
       navigate(`/${roomId}`);
     } catch (error) {
       console.error("Error creating room: ", error);
@@ -41,7 +41,7 @@ const Home = () => {
         console.log(`Player ${playerName} already exists in room ${roomId}.`);
         alert("player already exist, use different name");
       } else {
-        await addNewPlayerToRoom(roomId, playerName);
+        addNewPlayerToRoom(roomId, playerName);
 
         console.log(`Player ${playerName} joined room ${roomId}.`);
       }
@@ -58,6 +58,7 @@ const Home = () => {
   //add new player to the room
   const addNewPlayerToRoom = async (roomId, playerName) => {
     try {
+      navigate(`/${roomId}`);
       const playerRef = await addDoc(
         collection(db, `rooms/${roomId}/players`),
         {
@@ -66,11 +67,14 @@ const Home = () => {
         }
       );
       const playerId = playerRef.id;
+
+      //create a new room
       await setDoc(doc(db, `rooms/${roomId}`), {
         roomId: roomId,
         roomUrl: "https://localhost:3000/" + roomId,
       });
 
+      //add player to the room
       await setDoc(doc(db, `rooms/${roomId}/players/${playerId}`), {
         playerId,
         name: playerName,
@@ -78,8 +82,8 @@ const Home = () => {
         isRoomCreator: roomCreator,
       });
 
+      //store playername in localstorage
       localStorage.setItem("player", playerName);
-      navigate(`/${roomId}`);
       console.log(`Player ${playerName} added to room ${roomId}.`);
       return playerId;
     } catch (error) {

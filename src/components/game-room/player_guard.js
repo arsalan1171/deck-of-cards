@@ -1,9 +1,8 @@
 import Home from "../home/home";
 
 const PlayerGuard = (props) => {
-  const { playerName, children } = props;
-
-  if (!playerName) {
+  const { playerName, roomExist, children } = props;
+  if (!playerName || !roomExist) {
     return <Home />;
   }
 

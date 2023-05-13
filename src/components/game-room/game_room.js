@@ -3,36 +3,19 @@ import cardsApi from "../../services/cards_service";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import PlayerGuard from "./player_guard";
 import Game from "../game-play/game_play";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import QRCode from "qrcode.react";
-import PlayerGuard from "./player_guard";
 import db from "../../firebase";
 import "./game_room.css";
 
 const GameRoom = () => {
   const { roomId } = useParams();
   const [players, setPlayers] = useState([]);
-  const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(30);
   const [shuffledDeck, setShuffledDeck] = useState([]);
-
-  useEffect(() => {
-    if (timeLeft === 0) {
-      // Move to the next player
-      setCurrentPlayerIndex((currentPlayerIndex + 1) % players.length);
-      // Reset the timer
-      setTimeLeft(30);
-    } else {
-      // Decrement the timer every second
-      const timer = setTimeout(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-      // Clear the timer when the component unmounts
-      return () => clearTimeout(timer);
-    }
-  }, [currentPlayerIndex, players.length, timeLeft]);
+  const [roomExist, setRoomExist] = useState(true);
 
   useEffect(() => {
     if (!roomId) return;
@@ -69,8 +52,9 @@ const GameRoom = () => {
         const room_id = roomIds !== "" ? roomIds : roomId;
         const roomRef = doc(db, `rooms/${room_id}`);
         const roomSnapshot = await getDoc(roomRef);
-        if (!roomSnapshot.exists() && playerName == null) {
-          console.log(`Room ${roomIds} does not exist Or Player not found`);
+        if (!roomSnapshot.exists()) {
+          console.log("room doesn't exist");
+          setRoomExist(false);
         }
       } catch (error) {
         console.error("Error fetching room: ", error);
@@ -82,7 +66,7 @@ const GameRoom = () => {
   return (
     <div>
       <>
-        <PlayerGuard playerName={playerName}>
+        <PlayerGuard playerName={playerName} roomExist={roomExist}>
           <Row>
             <Col>
               <h1>Game Room: {roomId}</h1>
@@ -101,13 +85,24 @@ const GameRoom = () => {
             </Col>
             <Col>
               <h2>Players:</h2>
-              <ul>
-                {players.map((player) => (
-                  <li key={player.id}>
-                    {player.name} {player.score}{" "}
-                  </li>
-                ))}
-              </ul>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {players.map((player) => (
+                    <tr key={player.id}>
+                      <td>{player.name}</td>
+                      <td>{player.score}</td>
+                      <td>{player.isRoomCreator ? "creator" : ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               <div>
                 <Game players={players} roomId={roomId}></Game>
               </div>
